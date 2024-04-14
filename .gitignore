@@ -1,0 +1,12 @@
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+
+### Temp File ###
+*.db
+*.exe
+
+## Log File ###
+logs/
