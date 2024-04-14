@@ -1,0 +1,17 @@
+settings:
+  application:
+    readTimeout: 700
+    writeTimeout: 700
+    host: example.com
+    port: 8080
+    name: test-name
+    mode: dev
+    demoMsg: testDemoMsg
+  log:
+    driver: zap
+    level: info
+    filePath: ./test-config.log
+    maxBackups: 10
+    maxAge: 19
+    maxSize: 100
+    compress: true
