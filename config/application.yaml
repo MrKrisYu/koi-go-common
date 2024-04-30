@@ -15,3 +15,5 @@ settings:
     maxAge: 19
     maxSize: 100
     compress: true
+  diy:
+    servicePath: it is a test params

@@ -1,68 +1,49 @@
 package config
 
 import (
-	"github.com/MrKrisYu/koi-go-common/config/encoder"
-	"github.com/MrKrisYu/koi-go-common/config/encoder/yaml"
-	"github.com/MrKrisYu/koi-go-common/config/entity"
+	"context"
+	"github.com/MrKrisYu/koi-go-common/config/loader"
+	"github.com/MrKrisYu/koi-go-common/config/reader"
+	"github.com/MrKrisYu/koi-go-common/config/source"
 )
-
-const (
-	defaultConfigPath = "./application.yaml"
-)
-
-var (
-	defaultEncoder = yaml.NewEncoder()
-)
-
-type Options struct {
-	// source path
-	ConfigPath string
-	// Encoder
-	Encoder encoder.Encoder
-	// for alternative data
-	Entities []entity.Entity
-	// for callbacks
-	Callbacks []func()
-}
 
 type Option func(o *Options)
 
-func NewOptions(opts ...Option) Options {
-	// default options
-	options := Options{
-		ConfigPath: defaultConfigPath,
-		Encoder:    defaultEncoder,
-		Entities:   []entity.Entity{},
-		Callbacks:  []func(){},
-	}
-	// configures options
-	for _, o := range opts {
-		o(&options)
-	}
+type Options struct {
+	Loader loader.Loader
+	Reader reader.Reader
+	Source []source.Source
 
-	return options
+	// for alternative data
+	Context context.Context
+
+	Entity Entity
 }
 
-func WithPath(path string) Option {
+// WithLoader sets the loader for manager DefaultConfig
+func WithLoader(l loader.Loader) Option {
 	return func(o *Options) {
-		o.ConfigPath = path
+		o.Loader = l
 	}
 }
 
-func WithEncoder(e encoder.Encoder) Option {
+// WithSource appends a source to list of sources
+func WithSource(s source.Source) Option {
 	return func(o *Options) {
-		o.Encoder = e
+		o.Source = append(o.Source, s)
 	}
 }
 
-func WithEntity(e ...entity.Entity) Option {
+// WithReader sets the DefaultConfig reader
+func WithReader(r reader.Reader) Option {
 	return func(o *Options) {
-		o.Entities = append(o.Entities, e...)
+		o.Reader = r
 	}
 }
 
-func WithCallback(f ...func()) Option {
+// WithEntity sets the DefaultConfig Entity
+func WithEntity(e Entity) Option {
 	return func(o *Options) {
-		o.Callbacks = append(o.Callbacks, f...)
+		o.Entity = e
 	}
 }

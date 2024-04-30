@@ -3,7 +3,7 @@ package queue
 import (
 	"github.com/MrKrisYu/koi-go-common/storage"
 	"github.com/go-admin-team/redisqueue/v2"
-	"github.com/redis/go-redis/v9"
+	"github.com/go-redis/redis/v9"
 )
 
 // NewRedis redis模式

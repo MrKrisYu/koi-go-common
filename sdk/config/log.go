@@ -1,4 +1,4 @@
-package entity
+package config
 
 import (
 	"github.com/MrKrisYu/koi-go-common/logger"

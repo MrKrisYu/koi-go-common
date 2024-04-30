@@ -3,16 +3,18 @@ module github.com/MrKrisYu/koi-go-common
 go 1.22.2
 
 require (
-	github.com/bsm/redislock v0.9.4
+	github.com/bitly/go-simplejson v0.5.1
+	github.com/bsm/redislock v0.8.2
 	github.com/casbin/casbin/v2 v2.87.1
 	github.com/chanxuehong/wechat v0.0.0-20230222024006-36f0325263cd
 	github.com/ghodss/yaml v1.0.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-admin-team/redisqueue/v2 v2.0.0
+	github.com/go-redis/redis/v9 v9.0.0-rc.2
 	github.com/google/uuid v1.6.0
+	github.com/imdario/mergo v0.3.16
 	github.com/json-iterator/go v1.1.12
 	github.com/nsqio/go-nsq v1.1.0
-	github.com/redis/go-redis/v9 v9.0.3
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spf13/cast v1.6.0
 	go.uber.org/zap v1.27.0
@@ -42,13 +44,11 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.14.0 // indirect
-	github.com/go-redis/redis/v9 v9.0.0-rc.2 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/huandu/xstrings v1.4.0 // indirect
-	github.com/imdario/mergo v0.3.16 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect

@@ -1,7 +1,7 @@
 # koi-go-common
 
 > - @author: krisyu291157877@gmail.com
-> - @description: Go开发常用工具类
+> - @description: Go开发常用工具类, 参考[go-admin-core](https://github.com/MrKrisYu/koi-go-common/)设计
 > - @repository:  [GitHub](https://github.com/MrKrisYu/koi-go-common)
 
 
@@ -31,9 +31,9 @@
 
 #### 日志设计
 
-- [ ] 提供一个日志使用泛型: 基本的日志等级设置，不同等级的打印；
-- [ ] 基于SPI的思路，来引入不同的实现： 想用使用不同的日志实现库，就要引入实现了指定接口的日志库
-- [ ] 日志的属性配置： 提供默认值与选配值，选配置看用户配置的属性
+- [x] 提供一个日志使用泛型: 基本的日志等级设置，不同等级的打印；
+- [x] 基于SPI的思路，来引入不同的实现： 想用使用不同的日志实现库，就要引入实现了指定接口的日志库
+- [x] 日志的属性配置： 提供默认值与选配值，选配置看用户配置的属性
 
 
 

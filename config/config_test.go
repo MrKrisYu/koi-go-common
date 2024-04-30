@@ -3,27 +3,24 @@ package config
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/MrKrisYu/koi-go-common/config/encoder/yaml"
-	"github.com/MrKrisYu/koi-go-common/config/entity"
-	"github.com/MrKrisYu/koi-go-common/sdk"
+	"github.com/MrKrisYu/koi-go-common/config/source/file"
 	"testing"
 )
 
 func TestConfig(t *testing.T) {
-	Setup(
-		WithPath("./application.yaml"),
-		WithEncoder(yaml.NewEncoder()),
-	)
-	applicationConfig, err := GetEntity[*entity.Application](Global, entity.ApplicationConfig.Key())
+	c, err := NewConfig()
 	if err != nil {
 		t.Error(err)
 	}
-	bytes, err := json.Marshal(applicationConfig)
+	err = c.Load(file.NewSource(file.WithPath("./application.yaml")))
 	if err != nil {
 		t.Error(err)
 	}
-	fmt.Println("sdkRuntimeContext = ", sdk.RuntimeContext)
-	fmt.Println("GetEntityFromApplicationKey = ", string(bytes))
-	fmt.Println("configuration = ", Global.Settings.String())
-
+	m := c.Map()
+	jsonbtyes, err := json.Marshal(m)
+	if err != nil {
+		t.Error(err)
+	}
+	fmt.Printf("DefaultConfig = %s\n", jsonbtyes)
+	fmt.Printf("diy params = %s\n", c.Get("settings", "diy", "servicePath").String(""))
 }

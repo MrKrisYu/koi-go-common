@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"github.com/MrKrisYu/koi-go-common/config"
 	"github.com/MrKrisYu/koi-go-common/logger"
 	"github.com/MrKrisYu/koi-go-common/storage"
 	"github.com/MrKrisYu/koi-go-common/storage/queue"
@@ -22,8 +23,9 @@ type ApplicationContext struct {
 	queue       storage.AdapterQueue
 	memoryQueue storage.AdapterQueue
 	locker      storage.AdapterLocker
-	configs     map[string]interface{} // 系统参数
-	logger      *logger.Helper
+	//configMap     map[string]interface{} // 系统参数
+	defaultConfig config.Config // 系统参数
+	logger        *logger.Helper
 }
 
 // NewConfig 默认值
@@ -34,7 +36,7 @@ func NewConfig() *ApplicationContext {
 		crontab:     make(map[string]*cron.Cron),
 		middlewares: make(map[string]interface{}),
 		memoryQueue: queue.NewMemory(10000),
-		configs:     make(map[string]interface{}),
+		//configMap:   make(map[string]interface{}),
 	}
 }
 
@@ -207,16 +209,31 @@ func (e *ApplicationContext) GetStreamMessage(id, stream string, value map[strin
 	return message, nil
 }
 
-// SetConfig 设置对应key的config
-func (e *ApplicationContext) SetConfig(key string, value interface{}) {
+// SetDefaultConfig 设置默认的config
+func (e *ApplicationContext) SetDefaultConfig(config config.Config) {
 	e.mux.Lock()
 	defer e.mux.Unlock()
-	e.configs[key] = value
+	e.defaultConfig = config
+	//e.configMap = e.defaultConfig.Map()
 }
 
-// GetConfig 获取对应key的config
-func (e *ApplicationContext) GetConfig(key string) interface{} {
+// GetDefaultConfig 获取默认的config
+func (e *ApplicationContext) GetDefaultConfig() config.Config {
 	e.mux.Lock()
 	defer e.mux.Unlock()
-	return e.configs[key]
+	return e.defaultConfig
 }
+
+//// SetConfigValue 设置对应key的config
+//func (e *ApplicationContext) SetConfigValue(key string, value interface{}) {
+//	e.mux.Lock()
+//	defer e.mux.Unlock()
+//	e.configMap[key] = value
+//}
+//
+//// GetConfigValue 获取对应key的config
+//func (e *ApplicationContext) GetConfigValue(key string) interface{} {
+//	e.mux.Lock()
+//	defer e.mux.Unlock()
+//	return e.configMap[key]
+//}

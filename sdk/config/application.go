@@ -1,4 +1,4 @@
-package entity
+package config
 
 type Application struct {
 	ReadTimeout  int    `json:"readTimeout"`  // Gin读数据超时时间，单位秒

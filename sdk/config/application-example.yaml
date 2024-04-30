@@ -1,0 +1,58 @@
+settings:
+  application:
+    readTimeout: 700
+    writeTimeout: 700
+    host: example.com
+    port: 8080
+    name: test-name
+    mode: dev
+    demoMsg: testDemoMsg
+  log:
+    driver: zap
+    level: info
+    filePath: ./test-config.log
+    maxBackups: 10
+    maxAge: 19
+    maxSize: 100
+    compress: true
+  cache:
+    network: tcp/udp
+    addr: localhost:6379
+    username: redis-username
+    password: redis-password
+    db: db0
+    poolSize: 10
+    tls:
+      cert: /etc/cert/redis.cert
+      key: /etc/cert/redis.key
+      ca: /etc/cert/redis.ca
+    maxRetries: 3
+  database:
+    # 数据库类型 mysql，sqlite3， postgres
+    driver: mysql
+    # 数据库连接字符串 mysql 缺省信息 charset=utf8&parseTime=True&loc=Local&timeout=1000ms
+    source: user:password@tcp(127.0.0.1:3306)/dbname?charset=utf8&parseTime=True&loc=Local&timeout=1000ms
+    connMaxIdleTime: 1000
+    connMaxLifeTime: 1000
+    MaxIdleConns: 100
+    MaxOpenConns: 100
+    registers:
+      - sources:
+          - user:password@tcp(127.0.0.1:3306)/dbname?charset=utf8&parseTime=True&loc=Local&timeout=1000ms
+      - replicas:
+          - xxxx
+  jwt:
+    secret: abc
+    timeout: 1000
+  ssl:
+    key: xxx
+    pem: sss
+    enable: true
+    domain: xxx
+  diy:
+    servicePath: its diy params of service path
+
+
+
+
+

@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"github.com/MrKrisYu/koi-go-common/config"
 	"github.com/MrKrisYu/koi-go-common/logger"
 	"github.com/MrKrisYu/koi-go-common/storage"
 	"github.com/casbin/casbin/v2"
@@ -55,7 +56,9 @@ type Runtime interface {
 	GetLockerAdapter() storage.AdapterLocker
 	GetLockerPrefix(string) storage.AdapterLocker
 
-	// SetConfig 运行时的配置信息配置
-	SetConfig(key string, value interface{})
-	GetConfig(key string) interface{}
+	// SetDefaultConfig 运行时的配置信息配置
+	SetDefaultConfig(config config.Config)
+	GetDefaultConfig() config.Config
+	//SetConfigValue(key string, value interface{})
+	//GetConfigValue(key string) interface{}
 }
