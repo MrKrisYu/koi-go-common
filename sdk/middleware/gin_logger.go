@@ -82,17 +82,30 @@ func GinLogger(trafficKey string) gin.HandlerFunc {
 		errorMessage := c.Errors.ByType(gin.ErrorTypePrivate).String()
 		requestId := c.Request.Header.Get(trafficKey)
 
-		requestLogger.Info("---------------------------请求开始-----------------------------")
-		requestLogger.Infof("X-Request-Id: %s", requestId)
-		requestLogger.Infof("CLASS METHOD: %s", handlerName)
-		requestLogger.Infof("请求地址: %s", requestPath)
-		requestLogger.Infof("请求参数: %+v", reqParams)
-		requestLogger.Infof("HTTP METHOD: %s", requestMethod)
-		requestLogger.Infof("IP: %s", clientIP)
-		requestLogger.Infof("HTTP STATUS: %d", responseStatus)
-		requestLogger.Infof("Error Message: %s", errorMessage)
-		requestLogger.Infof("响应数据: %s", responseData)
-		requestLogger.Infof("耗时: %s", cost.String())
-		requestLogger.Info("---------------------------请求结束-----------------------------\n")
+		logTemplate := "\n---------------------------请求开始-----------------------------\n" +
+			"X-Request-Id: %s\n" +
+			"CLASS METHOD: %s\n" +
+			"请求地址: %s\n" +
+			"请求参数: %+v\n" +
+			"HTTP METHOD: %s\n" +
+			"IP: %s" +
+			"HTTP STATUS: %d\n" +
+			"Error Message: %s\n" +
+			"响应数据: %s\n" +
+			"耗时: %s\n" +
+			"---------------------------请求结束-----------------------------\n"
+		logStr := fmt.Sprintf(logTemplate,
+			requestId,
+			handlerName,
+			requestPath,
+			reqParams,
+			requestMethod,
+			clientIP,
+			responseStatus,
+			errorMessage,
+			responseData,
+			cost.String(),
+		)
+		requestLogger.Info(logStr)
 	}
 }
