@@ -23,6 +23,7 @@ func RequestId(trafficKey string) gin.HandlerFunc {
 		}
 		c.Request.Header.Set(trafficKey, requestId)
 		c.Set(trafficKey, requestId)
+		c.Header(trafficKey, requestId)
 		c.Next()
 	}
 }
