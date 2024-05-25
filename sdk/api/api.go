@@ -17,9 +17,9 @@ var (
 )
 
 type Api struct {
-	Context *gin.Context
-	Logger  *logger.Helper
-	Errors  error
+	//Context *gin.Context
+	Logger *logger.Helper
+	Errors error
 }
 
 func (e *Api) AddError(err error) {
@@ -33,7 +33,7 @@ func (e *Api) AddError(err error) {
 
 // MakeContext 设置http上下文
 func (e *Api) MakeContext(c *gin.Context) *Api {
-	e.Context = c
+	//e.Context = c
 	e.Logger = GetRequestLogger(c)
 	return e
 }
@@ -44,21 +44,21 @@ func (e *Api) MakeService(s *service.Service) *Api {
 }
 
 // GetLogger 获取上下文提供的日志
-func (e *Api) GetLogger() *logger.Helper {
-	return GetRequestLogger(e.Context)
-}
+//func (e *Api) GetLogger() *logger.Helper {
+//	return GetRequestLogger(e.Context)
+//}
 
 // Bind 参数校验
-func (e *Api) Bind(d any, bindings ...binding.Binding) *Api {
+func (e *Api) Bind(ctx *gin.Context, d any, bindings ...binding.Binding) *Api {
 	var err error
 	if len(bindings) == 0 {
 		bindings = constructor.GetBindingForGin(d)
 	}
 	for i := range bindings {
 		if bindings[i] == nil {
-			err = e.Context.ShouldBindUri(d)
+			err = ctx.ShouldBindUri(d)
 		} else {
-			err = e.Context.ShouldBindWith(d, bindings[i])
+			err = ctx.ShouldBindWith(d, bindings[i])
 		}
 		if err != nil && err.Error() == "EOF" {
 			e.Logger.Warn("request body is not present anymore. ")
@@ -73,9 +73,9 @@ func (e *Api) Bind(d any, bindings ...binding.Binding) *Api {
 	return e
 }
 
-func (e *Api) OK(data any) {
+func (e *Api) OK(ctx *gin.Context, data any) {
 	if data == nil {
-		e.Context.JSON(http.StatusOK, response.Response[any]{
+		ctx.JSON(http.StatusOK, response.Response[any]{
 			Code:    response.OK.Code,
 			Message: response.OK.Message,
 			Data:    EmptyData,
@@ -114,17 +114,17 @@ func (e *Api) OK(data any) {
 			Data:    ValueWrapper[any]{Value: data},
 		}
 	}
-	e.Context.JSON(http.StatusOK, ret)
+	ctx.JSON(http.StatusOK, ret)
 	// 一个请求事务完结后，把错误清空，避免错误过度传递，影响下个请求事务
 	e.Errors = nil
 }
 
-func (e *Api) Error(businessStatus response.Status, errMsg ...string) {
+func (e *Api) Error(ctx *gin.Context, businessStatus response.Status, errMsg ...string) {
 	errMessage := businessStatus.Message
 	if len(errMsg) > 0 {
 		errMessage = strings.Join([]string{errMessage, errMsg[0]}, ": ")
 	}
-	e.Context.JSON(http.StatusOK, response.Response[struct{}]{
+	ctx.JSON(http.StatusOK, response.Response[struct{}]{
 		Code:    businessStatus.Code,
 		Message: errMessage,
 		Data:    EmptyData,
