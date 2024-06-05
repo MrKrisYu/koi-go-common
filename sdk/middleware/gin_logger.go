@@ -88,7 +88,7 @@ func GinLogger(trafficKey string) gin.HandlerFunc {
 			"请求地址: %s\n" +
 			"请求参数: %+v\n" +
 			"HTTP METHOD: %s\n" +
-			"IP: %s" +
+			"IP: %s\n" +
 			"HTTP STATUS: %d\n" +
 			"Error Message: %s\n" +
 			"响应数据: %s\n" +
