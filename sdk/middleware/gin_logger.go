@@ -22,14 +22,6 @@ func GinLogger(trafficKey string) gin.HandlerFunc {
 		responseStatus := c.Writer.Status()
 		var reqParams interface{}
 
-		// 读取请求体
-		var bodyBytes []byte
-		if c.Request.Body != nil {
-			bodyBytes, _ = io.ReadAll(c.Request.Body)
-		}
-		// 将读取过的请求体重新放入请求中
-		c.Request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
-
 		// 创建响应记录器
 		recorder := NewResponseRecorder(c.Writer)
 		c.Writer = recorder
@@ -43,6 +35,14 @@ func GinLogger(trafficKey string) gin.HandlerFunc {
 		// 请求的后置处理
 		switch c.ContentType() { // 根据 Content-Type 选择合适的方式来获取请求参数
 		case "application/json":
+			// 读取请求体
+			var bodyBytes []byte
+			if c.Request.Body != nil {
+				bodyBytes, _ = io.ReadAll(c.Request.Body)
+			}
+			// 将读取过的请求体重新放入请求中
+			c.Request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+			// 反序列化请求体
 			var jsonMap map[string]interface{}
 			if err := json.Unmarshal(bodyBytes, &jsonMap); err == nil {
 				reqParams = jsonMap
