@@ -1,0 +1,25 @@
+settings:
+  application:
+    readTimeout: 600
+    writeTimeout: 600
+    host: localhost
+    port: 8080
+    name: Service
+    mode: dev
+    demoMsg: ""
+
+  log:
+    # 日志框架
+    driver: "zap"
+    # 日志等级, 可用等级参考 logger/level包下的 Level.String()
+    level: info
+    # 日志文件名称
+    filePath: "./logs/test.log"
+    # 日志文件最大大小，单位MB
+    maxSize: 1024
+    # 最多备份的日志文件数量
+    maxBackups: 30
+    # 最多保留天数
+    maxAge: 30
+    # 是否压缩日志
+    compress: true

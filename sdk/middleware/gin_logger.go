@@ -19,20 +19,8 @@ func GinLogger(trafficKey string) gin.HandlerFunc {
 		// 获取请求地址和方法
 		requestPath := c.Request.URL.String()
 		requestMethod := c.Request.Method
-		responseStatus := c.Writer.Status()
 		var reqParams interface{}
-
-		// 创建响应记录器
-		recorder := NewResponseRecorder(c.Writer)
-		c.Writer = recorder
-		// 处理请求前记录时间
-		start := time.Now()
-		// 处理请求
-		c.Next()
-		// 处理请求后记录时间
-		cost := time.Since(start)
-
-		// 请求的后置处理
+		// 处理请求体
 		switch c.ContentType() { // 根据 Content-Type 选择合适的方式来获取请求参数
 		case "application/json":
 			// 读取请求体
@@ -54,7 +42,19 @@ func GinLogger(trafficKey string) gin.HandlerFunc {
 		default:
 			reqParams = fmt.Sprintf("[UNSUPPORTED CONTENT TYPE: %s]", c.ContentType()) //其他类型数据暂不做处理
 		}
+		// 创建响应记录器
+		recorder := NewResponseRecorder(c.Writer)
+		c.Writer = recorder
 
+		// 处理请求前记录时间
+		start := time.Now()
+		// 处理请求
+		c.Next()
+		// 处理请求后记录时间
+		cost := time.Since(start)
+
+		// 响应状态
+		responseStatus := c.Writer.Status()
 		// 获取响应数据
 		var responseData string
 		respContentType := recorder.ResponseWriter.Header().Get("Content-Type")
