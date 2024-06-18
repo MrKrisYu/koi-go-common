@@ -1,12 +1,14 @@
 package api
 
 import (
+	"errors"
 	"fmt"
 	"github.com/MrKrisYu/koi-go-common/logger"
 	"github.com/MrKrisYu/koi-go-common/sdk/api/response"
 	"github.com/MrKrisYu/koi-go-common/sdk/service"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"io"
 	"net/http"
 	"reflect"
 	"strings"
@@ -19,17 +21,17 @@ var (
 type Api struct {
 	//Context *gin.Context
 	Logger *logger.Helper
-	Errors error
+	//Errors error
 }
 
-func (e *Api) AddError(err error) {
-	if e.Errors == nil {
-		e.Errors = err
-	} else if err != nil {
-		e.Logger.Error(err)
-		e.Errors = fmt.Errorf("%v; %w", e.Errors, err)
-	}
-}
+//func (e *Api) AddError(err error) {
+//	if e.Errors == nil {
+//		e.Errors = err
+//	} else if err != nil {
+//		e.Logger.Error(err)
+//		e.Errors = fmt.Errorf("%v; %w", e.Errors, err)
+//	}
+//}
 
 // MakeContext 设置http上下文
 func (e *Api) MakeContext(c *gin.Context) *Api {
@@ -49,28 +51,31 @@ func (e *Api) MakeService(s *service.Service) *Api {
 //}
 
 // Bind 参数校验
-func (e *Api) Bind(ctx *gin.Context, d any, bindings ...binding.Binding) *Api {
-	var err error
+func (e *Api) Bind(ctx *gin.Context, d any, bindings ...binding.Binding) error {
+	var mergedErr error
 	if len(bindings) == 0 {
 		bindings = constructor.GetBindingForGin(d)
 	}
 	for i := range bindings {
+		// 推荐每个请求体仅用一种绑定方式，否则会出现诸如结构体同时含有请求头和请求参数的必填字段，
+		// 在绑定任一方式时，会导致另一个类型字段因未绑定而出现误判定为未填写的情况。
+		var err error
 		if bindings[i] == nil {
 			err = ctx.ShouldBindUri(d)
 		} else {
 			err = ctx.ShouldBindWith(d, bindings[i])
 		}
-		if err != nil && err.Error() == "EOF" {
+		if errors.Is(err, io.EOF) {
 			e.Logger.Warn("request body is not present anymore. ")
 			err = nil
-			continue
-		}
-		if err != nil {
-			e.AddError(err)
 			break
 		}
+		if err != nil {
+			mergedErr = fmt.Errorf("%v; %w", mergedErr, err)
+			continue
+		}
 	}
-	return e
+	return mergedErr
 }
 
 func (e *Api) OK(ctx *gin.Context, data any) {
@@ -116,7 +121,7 @@ func (e *Api) OK(ctx *gin.Context, data any) {
 	}
 	ctx.JSON(http.StatusOK, ret)
 	// 一个请求事务完结后，把错误清空，避免错误过度传递，影响下个请求事务
-	e.Errors = nil
+	//e.Errors = nil
 }
 
 func (e *Api) Error(ctx *gin.Context, businessStatus response.Status, errMsg ...string) {
@@ -130,7 +135,7 @@ func (e *Api) Error(ctx *gin.Context, businessStatus response.Status, errMsg ...
 		Data:    EmptyData,
 	})
 	// 一个请求事务完结后，把错误清空，避免错误过度传递，影响下个请求事务
-	e.Errors = nil
+	//e.Errors = nil
 }
 
 func (e *Api) Translate(from, to any) {
