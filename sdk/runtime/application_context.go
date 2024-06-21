@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"context"
 	"github.com/MrKrisYu/koi-go-common/config"
 	"github.com/MrKrisYu/koi-go-common/logger"
 	"github.com/MrKrisYu/koi-go-common/storage"
@@ -13,6 +14,7 @@ import (
 )
 
 type ApplicationContext struct {
+	Context     context.Context
 	dbs         map[string]*gorm.DB
 	casbins     map[string]*casbin.SyncedEnforcer
 	engine      http.Handler
@@ -31,6 +33,7 @@ type ApplicationContext struct {
 // NewConfig 默认值
 func NewConfig() *ApplicationContext {
 	return &ApplicationContext{
+		Context:     context.Background(),
 		dbs:         make(map[string]*gorm.DB),
 		casbins:     make(map[string]*casbin.SyncedEnforcer),
 		crontab:     make(map[string]*cron.Cron),
