@@ -43,6 +43,25 @@ func NewConfig() *ApplicationContext {
 	}
 }
 
+// SetContext 设置全局上下文
+func (e *ApplicationContext) SetContext(ctx context.Context) {
+	e.mux.Lock()
+	defer e.mux.Unlock()
+	if ctx != nil {
+		e.Context = ctx
+	}
+}
+
+// GetContext 获取全局上下文
+func (e *ApplicationContext) GetContext() context.Context {
+	e.mux.Lock()
+	defer e.mux.Unlock()
+	if e.Context == nil {
+		e.Context = context.Background()
+	}
+	return e.Context
+}
+
 // SetDb 设置对应key的db
 func (e *ApplicationContext) SetDb(key string, db *gorm.DB) {
 	e.mux.Lock()

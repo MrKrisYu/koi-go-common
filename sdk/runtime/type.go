@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"context"
 	"github.com/MrKrisYu/koi-go-common/config"
 	"github.com/MrKrisYu/koi-go-common/logger"
 	"github.com/MrKrisYu/koi-go-common/storage"
@@ -12,6 +13,10 @@ import (
 
 // Runtime 运行时容器的接口能力， 参看 go-admin-core/sdk/runtime包
 type Runtime interface {
+	// SetContext 设局全局上下文
+	SetContext(ctx context.Context)
+	GetContext() context.Context
+
 	// SetDb 多db设置，⚠️SetDbs不允许并发,可以根据自己的业务，例如app分库、host分库
 	SetDb(key string, db *gorm.DB)
 	GetDb() map[string]*gorm.DB
