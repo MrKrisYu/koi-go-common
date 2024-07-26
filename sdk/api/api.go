@@ -133,7 +133,7 @@ func (e *Api) OK(ctx *gin.Context, data any) {
 
 func (e *Api) Error(ctx *gin.Context, businessStatus response.Status, errMsg ...i18n.MyError) {
 	statusMsg := translate(ctx, businessStatus.Message)
-	var msg string
+	msg := statusMsg
 	if len(errMsg) > 0 {
 		errorMsg := translate(ctx, errMsg[0].Message)
 		msg = strings.Join([]string{statusMsg, errorMsg}, ": ")

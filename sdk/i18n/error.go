@@ -15,3 +15,17 @@ func NewMyError(err error) MyError {
 		Message: Message{DefaultMessage: err.Error()},
 	}
 }
+
+func NewMyErrorWithMessageID(mi MessageID, arg ...any) MyError {
+	myError := MyError{
+		Err: nil,
+		Message: Message{
+			ID:             mi.ID,
+			DefaultMessage: mi.DefaultMessage,
+		},
+	}
+	if len(arg) > 0 {
+		myError.Message.Args = arg[0]
+	}
+	return myError
+}

@@ -29,3 +29,8 @@ type Message struct {
 	DefaultMessage string `json:"defaultMessage"` // 默认消息，翻译失败时，使用
 	Args           any    `json:"args"`           // 消息参数
 }
+
+type MessageID struct {
+	ID             string `json:"ID"`
+	DefaultMessage string `json:"defaultMessage"`
+}
