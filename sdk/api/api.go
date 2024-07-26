@@ -65,7 +65,7 @@ func (e *Api) Bind(ctx *gin.Context, d any, bindings ...binding.Binding) error {
 	return mergedErr
 }
 
-func translate(ctx *gin.Context, message i18n.Message) string {
+func Translate(ctx *gin.Context, message i18n.Message) string {
 	tag, exist := ctx.Get(header.AcceptLanguageFlag)
 	if !exist {
 		return message.DefaultMessage
@@ -86,7 +86,7 @@ func translate(ctx *gin.Context, message i18n.Message) string {
 }
 
 func (e *Api) OK(ctx *gin.Context, data any) {
-	message := translate(ctx, response.OK.Message)
+	message := Translate(ctx, response.OK.Message)
 	if data == nil {
 		ctx.JSON(http.StatusOK, response.Response[any]{
 			Code:    response.OK.Code,
@@ -132,10 +132,10 @@ func (e *Api) OK(ctx *gin.Context, data any) {
 }
 
 func (e *Api) Error(ctx *gin.Context, businessStatus response.Status, errMsg ...i18n.MyError) {
-	statusMsg := translate(ctx, businessStatus.Message)
+	statusMsg := Translate(ctx, businessStatus.Message)
 	msg := statusMsg
 	if len(errMsg) > 0 {
-		errorMsg := translate(ctx, errMsg[0].Message)
+		errorMsg := Translate(ctx, errMsg[0].Message)
 		msg = strings.Join([]string{statusMsg, errorMsg}, ": ")
 	}
 	ctx.JSON(http.StatusOK, response.Response[struct{}]{
