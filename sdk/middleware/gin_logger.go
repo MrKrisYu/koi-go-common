@@ -33,7 +33,9 @@ func GinLogger(trafficKey string) gin.HandlerFunc {
 			// 反序列化请求体
 			var jsonMap map[string]interface{}
 			if err := json.Unmarshal(bodyBytes, &jsonMap); err == nil {
-				reqParams = jsonMap
+				if marshal, err := json.Marshal(jsonMap); err == nil {
+					reqParams = string(marshal)
+				}
 			}
 		case "application/x-www-form-urlencoded", "multipart/form-data":
 			reqParams = c.Request.Form

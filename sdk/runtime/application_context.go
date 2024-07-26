@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/MrKrisYu/koi-go-common/config"
 	"github.com/MrKrisYu/koi-go-common/logger"
+	"github.com/MrKrisYu/koi-go-common/sdk/i18n"
 	"github.com/MrKrisYu/koi-go-common/storage"
 	"github.com/MrKrisYu/koi-go-common/storage/queue"
 	"github.com/casbin/casbin/v2"
@@ -15,6 +16,7 @@ import (
 
 type ApplicationContext struct {
 	Context     context.Context
+	Translator  i18n.Translator // 全局翻译器
 	dbs         map[string]*gorm.DB
 	casbins     map[string]*casbin.SyncedEnforcer
 	engine      http.Handler
@@ -41,6 +43,22 @@ func NewConfig() *ApplicationContext {
 		memoryQueue: queue.NewMemory(10000),
 		//configMap:   make(map[string]interface{}),
 	}
+}
+
+// SetTranslator 设置全局翻译器
+func (e *ApplicationContext) SetTranslator(t i18n.Translator) {
+	e.mux.Lock()
+	defer e.mux.Unlock()
+	if t != nil {
+		e.Translator = t
+	}
+}
+
+// GetTranslator 获取全局翻译器
+func (e *ApplicationContext) GetTranslator() i18n.Translator {
+	e.mux.Lock()
+	defer e.mux.Unlock()
+	return e.Translator
 }
 
 // SetContext 设置全局上下文

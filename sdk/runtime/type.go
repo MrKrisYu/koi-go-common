@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/MrKrisYu/koi-go-common/config"
 	"github.com/MrKrisYu/koi-go-common/logger"
+	"github.com/MrKrisYu/koi-go-common/sdk/i18n"
 	"github.com/MrKrisYu/koi-go-common/storage"
 	"github.com/casbin/casbin/v2"
 	"github.com/robfig/cron/v3"
@@ -13,7 +14,11 @@ import (
 
 // Runtime 运行时容器的接口能力， 参看 go-admin-core/sdk/runtime包
 type Runtime interface {
-	// SetContext 设局全局上下文
+	// SetTranslator 设置翻译器
+	SetTranslator(t i18n.Translator)
+	GetTranslator() i18n.Translator
+
+	// SetContext 设置全局上下文
 	SetContext(ctx context.Context)
 	GetContext() context.Context
 

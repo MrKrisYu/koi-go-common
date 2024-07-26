@@ -4,10 +4,14 @@ import (
 	"fmt"
 	"github.com/MrKrisYu/koi-go-common/config/source/file"
 	"github.com/MrKrisYu/koi-go-common/sdk/api"
+	"github.com/MrKrisYu/koi-go-common/sdk/api/header"
 	"github.com/MrKrisYu/koi-go-common/sdk/config"
+	"github.com/MrKrisYu/koi-go-common/sdk/i18n"
+	"github.com/MrKrisYu/koi-go-common/sdk/i18n/example"
 	"github.com/MrKrisYu/koi-go-common/sdk/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"golang.org/x/text/language"
 	"net/http"
 	"testing"
 )
@@ -19,8 +23,10 @@ type JsonRequest struct {
 func TestGinLogger(t *testing.T) {
 	config.Setup(file.NewSource(file.WithPath("./application.yaml")))
 
+	translator := example.NewDefaultTranslator(example.DefaultLanguage, example.AllowedLanguage)
+
 	engine := gin.Default()
-	engine.Use(middleware.GinLogger("X-Request-Id"))
+	engine.Use(middleware.GinLogger("X-Request-Id")).Use(example.AcceptLanguage())
 
 	engine.POST("/testJson", func(c *gin.Context) {
 		var req JsonRequest
@@ -29,6 +35,12 @@ func TestGinLogger(t *testing.T) {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
+		lang := language.Und
+		if value, exists := c.Get(header.AcceptLanguageFlag); exists {
+			lang = value.(language.Tag)
+		}
+		message := translator.TrWithData(lang, i18n.Message{ID: req.Value, DefaultMessage: "DefaultMessage", Args: map[string]interface{}{"Arg": "测试参数"}})
+		req.Value = message
 		c.JSON(http.StatusOK, req)
 	})
 

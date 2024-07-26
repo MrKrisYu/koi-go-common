@@ -1,0 +1,18 @@
+{
+  "base": {
+    "name": "姓名",
+    "sex": "性别",
+    "age": "年龄",
+    "birthday": "出生日期",
+    "address": "地址",
+    "phone": "电话",
+    "email": "邮箱",
+    "qq": "QQ",
+    "wechat": "微信",
+    "weibo": "微博",
+    "github": "GitHub"
+  },
+  "disk": {
+    "name": "磁盘名称:{{.Arg}}"
+  }
+}

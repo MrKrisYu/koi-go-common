@@ -1,0 +1,18 @@
+{
+  "base": {
+    "name": "name",
+    "sex": "set",
+    "age": "age",
+    "birthday": "birthday",
+    "address": "address",
+    "phone": "phone",
+    "email": "email",
+    "qq": "QQ",
+    "wechat": "wechat",
+    "weibo": "weibo",
+    "github": "GitHub"
+  },
+  "disk": {
+    "name": "disk name: {{.Arg}}"
+  }
+}

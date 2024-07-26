@@ -4,10 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"github.com/MrKrisYu/koi-go-common/logger"
+	"github.com/MrKrisYu/koi-go-common/sdk"
+	"github.com/MrKrisYu/koi-go-common/sdk/api/header"
 	"github.com/MrKrisYu/koi-go-common/sdk/api/response"
+	"github.com/MrKrisYu/koi-go-common/sdk/i18n"
 	"github.com/MrKrisYu/koi-go-common/sdk/service"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"golang.org/x/text/language"
 	"io"
 	"net/http"
 	"reflect"
@@ -19,23 +23,11 @@ var (
 )
 
 type Api struct {
-	//Context *gin.Context
 	Logger *logger.Helper
-	//Errors error
 }
-
-//func (e *Api) AddError(err error) {
-//	if e.Errors == nil {
-//		e.Errors = err
-//	} else if err != nil {
-//		e.Logger.Error(err)
-//		e.Errors = fmt.Errorf("%v; %w", e.Errors, err)
-//	}
-//}
 
 // MakeContext 设置http上下文
 func (e *Api) MakeContext(c *gin.Context) *Api {
-	//e.Context = c
 	e.Logger = GetRequestLogger(c)
 	return e
 }
@@ -44,11 +36,6 @@ func (e *Api) MakeService(s *service.Service) *Api {
 	s.Logger = e.Logger
 	return e
 }
-
-// GetLogger 获取上下文提供的日志
-//func (e *Api) GetLogger() *logger.Helper {
-//	return GetRequestLogger(e.Context)
-//}
 
 // Bind 参数校验
 func (e *Api) Bind(ctx *gin.Context, d any, bindings ...binding.Binding) error {
@@ -78,11 +65,32 @@ func (e *Api) Bind(ctx *gin.Context, d any, bindings ...binding.Binding) error {
 	return mergedErr
 }
 
+func translate(ctx *gin.Context, message i18n.Message) string {
+	tag, exist := ctx.Get(header.AcceptLanguageFlag)
+	if !exist {
+		return message.DefaultMessage
+	}
+	lang := tag.(language.Tag)
+	translator := sdk.RuntimeContext.GetTranslator()
+	if translator == nil {
+		return message.DefaultMessage
+	}
+	if len(message.ID) == 0 {
+		return message.DefaultMessage
+	}
+	if message.Args == nil {
+		return translator.Tr(lang, message)
+	} else {
+		return translator.TrWithData(lang, message)
+	}
+}
+
 func (e *Api) OK(ctx *gin.Context, data any) {
+	message := translate(ctx, response.OK.Message)
 	if data == nil {
 		ctx.JSON(http.StatusOK, response.Response[any]{
 			Code:    response.OK.Code,
-			Message: response.OK.Message,
+			Message: message,
 			Data:    EmptyData,
 		})
 		return
@@ -99,7 +107,7 @@ func (e *Api) OK(ctx *gin.Context, data any) {
 		// 切片，使用ListDataWrapper封装
 		ret = response.Response[ListDataWrapper[any]]{
 			Code:    response.OK.Code,
-			Message: response.OK.Message,
+			Message: message,
 			Data:    ListDataWrapper[any]{Items: data},
 		}
 		break
@@ -107,7 +115,7 @@ func (e *Api) OK(ctx *gin.Context, data any) {
 		// 结构体，直接返回
 		ret = response.Response[any]{
 			Code:    response.OK.Code,
-			Message: response.OK.Message,
+			Message: message,
 			Data:    data,
 		}
 		break
@@ -115,31 +123,26 @@ func (e *Api) OK(ctx *gin.Context, data any) {
 		// 非切片且非结构体，使用ValueWrapper封装
 		ret = response.Response[ValueWrapper[any]]{
 			Code:    response.OK.Code,
-			Message: response.OK.Message,
+			Message: message,
 			Data:    ValueWrapper[any]{Value: data},
 		}
 	}
 	ctx.JSON(http.StatusOK, ret)
-	// 一个请求事务完结后，把错误清空，避免错误过度传递，影响下个请求事务
-	//e.Errors = nil
+
 }
 
-func (e *Api) Error(ctx *gin.Context, businessStatus response.Status, errMsg ...string) {
-	errMessage := businessStatus.Message
+func (e *Api) Error(ctx *gin.Context, businessStatus response.Status, errMsg ...i18n.MyError) {
+	statusMsg := translate(ctx, businessStatus.Message)
+	var msg string
 	if len(errMsg) > 0 {
-		errMessage = strings.Join([]string{errMessage, errMsg[0]}, ": ")
+		errorMsg := translate(ctx, errMsg[0].Message)
+		msg = strings.Join([]string{statusMsg, errorMsg}, ": ")
 	}
 	ctx.JSON(http.StatusOK, response.Response[struct{}]{
 		Code:    businessStatus.Code,
-		Message: errMessage,
+		Message: msg,
 		Data:    EmptyData,
 	})
-	// 一个请求事务完结后，把错误清空，避免错误过度传递，影响下个请求事务
-	//e.Errors = nil
-}
-
-func (e *Api) Translate(from, to any) {
-	CopyProperties(from, to)
 }
 
 // ListDataWrapper 用于包装切片
