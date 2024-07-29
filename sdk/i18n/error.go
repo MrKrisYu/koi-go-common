@@ -10,10 +10,13 @@ func (e MyError) Error() string {
 }
 
 func NewMyError(err error) MyError {
-	return MyError{
-		Err:     err,
-		Message: Message{DefaultMessage: err.Error()},
+	myError := MyError{
+		Err: err,
 	}
+	if err != nil {
+		myError.Message = Message{DefaultMessage: err.Error()}
+	}
+	return myError
 }
 
 func NewMyErrorWithMessageID(mi MessageID, arg ...any) MyError {

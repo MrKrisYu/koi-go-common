@@ -26,7 +26,7 @@ type Translator interface {
 // Message 国际化消息
 type Message struct {
 	ID             string `json:"ID"`             // 消息ID
-	DefaultMessage string `json:"defaultMessage"` // 默认消息，翻译失败时，使用
+	DefaultMessage string `json:"defaultMessage"` // 默认消息，兼容未配置国际化的系统
 	Args           any    `json:"args"`           // 消息参数
 }
 

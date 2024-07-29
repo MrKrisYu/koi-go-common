@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"github.com/MrKrisYu/koi-go-common/logger"
@@ -15,7 +16,7 @@ import (
 	"io"
 	"net/http"
 	"reflect"
-	"strings"
+	"runtime"
 )
 
 var (
@@ -131,13 +132,24 @@ func (e *Api) OK(ctx *gin.Context, data any) {
 
 }
 
-func (e *Api) Error(ctx *gin.Context, businessStatus response.Status, errMsg ...i18n.MyError) {
-	statusMsg := Translate(ctx, businessStatus.Message)
-	msg := statusMsg
-	if len(errMsg) > 0 {
-		errorMsg := Translate(ctx, errMsg[0].Message)
-		msg = strings.Join([]string{statusMsg, errorMsg}, ": ")
+func (e *Api) Error(ctx *gin.Context, businessStatus response.Status, err error) {
+	var msg string
+	var myError *i18n.MyError
+	if !errors.As(err, &myError) { // 处理未知错误
+		// 打印未知错误
+		requestLogger := GetRequestLogger(ctx)
+		requestLogger.Error(err, "\n", LogStack(2, 5))
+		// 翻译响应状态码
+		msg = Translate(ctx, businessStatus.Message)
+		ctx.JSON(http.StatusOK, response.Response[struct{}]{
+			Code:    businessStatus.Code,
+			Message: msg,
+			Data:    EmptyData,
+		})
+		return
 	}
+	// 若是内部错误类型，则获取翻译后的错误信息即可
+	msg = Translate(ctx, myError.Message)
 	ctx.JSON(http.StatusOK, response.Response[struct{}]{
 		Code:    businessStatus.Code,
 		Message: msg,
@@ -153,4 +165,18 @@ type ListDataWrapper[T any] struct {
 // ValueWrapper 用于包装非切片且非结构体的数据类型
 type ValueWrapper[T any] struct {
 	Value T `json:"value"` // 结构体数据
+}
+
+// LogStack return call function stack info from start stack to end stack.
+// if end is a positive number, return all call function stack.
+func LogStack(start, end int) string {
+	stack := bytes.Buffer{}
+	for i := start; i < end || end <= 0; i++ {
+		pc, str, line, _ := runtime.Caller(i)
+		if line == 0 {
+			break
+		}
+		stack.WriteString(fmt.Sprintf("%s:%d %s\n", str, line, runtime.FuncForPC(pc).Name()))
+	}
+	return stack.String()
 }
