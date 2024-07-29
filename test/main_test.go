@@ -5,12 +5,12 @@ import (
 	"github.com/MrKrisYu/koi-go-common/config/source/file"
 	"github.com/MrKrisYu/koi-go-common/sdk/api"
 	"github.com/MrKrisYu/koi-go-common/sdk/api/header"
+	"github.com/MrKrisYu/koi-go-common/sdk/api/response"
 	"github.com/MrKrisYu/koi-go-common/sdk/config"
 	"github.com/MrKrisYu/koi-go-common/sdk/i18n"
 	"github.com/MrKrisYu/koi-go-common/sdk/i18n/example"
 	"github.com/MrKrisYu/koi-go-common/sdk/middleware"
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 	"golang.org/x/text/language"
 	"net/http"
 	"testing"
@@ -68,14 +68,9 @@ type TestController struct {
 }
 
 func (c *TestController) MixParams(ctx *gin.Context) {
-	var req MixReq
-	err := c.MakeContext(ctx).
-		Bind(ctx, &req, binding.Header, binding.Query)
-
-	if err != nil {
-		ctx.JSON(http.StatusOK, gin.H{"data": "RequestError: " + err.Error()})
-		return
-	}
-	ctx.JSON(http.StatusOK, gin.H{"data": req})
+	//var req MixReq
+	//var req JsonRequest
+	_ = c.MakeContext(ctx)
+	c.Error(ctx, response.OK, i18n.NewMyErrorWithMessageID(i18n.MessageID{ID: "response.OK", DefaultMessage: "OKOK"}))
 	return
 }

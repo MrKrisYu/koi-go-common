@@ -6,7 +6,10 @@ type MyError struct {
 }
 
 func (e MyError) Error() string {
-	return e.Err.Error()
+	if e.Err != nil {
+		return e.Err.Error()
+	}
+	return "<nil>"
 }
 
 func NewMyError(err error) MyError {

@@ -134,7 +134,7 @@ func (e *Api) OK(ctx *gin.Context, data any) {
 
 func (e *Api) Error(ctx *gin.Context, businessStatus response.Status, err error) {
 	var msg string
-	var myError *i18n.MyError
+	var myError i18n.MyError
 	if !errors.As(err, &myError) { // 处理未知错误
 		// 打印未知错误
 		requestLogger := GetRequestLogger(ctx)
