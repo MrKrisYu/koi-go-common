@@ -59,8 +59,7 @@ func (e *Api) Bind(ctx *gin.Context, d any, bindings ...binding.Binding) error {
 			break
 		}
 		if err != nil {
-			mergedErr = fmt.Errorf("%v; %w", mergedErr, err)
-			continue
+			return err
 		}
 	}
 	return mergedErr
@@ -138,7 +137,7 @@ func (e *Api) Error(ctx *gin.Context, businessStatus response.Status, err error)
 	if !errors.As(err, &myError) { // 处理未知错误
 		// 打印未知错误
 		requestLogger := GetRequestLogger(ctx)
-		requestLogger.Error(err, "\n", LogStack(2, 5))
+		requestLogger.Error(err)
 		// 翻译响应状态码
 		msg = Translate(ctx, businessStatus.Message)
 		ctx.JSON(http.StatusOK, response.Response[struct{}]{
