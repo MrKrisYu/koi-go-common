@@ -23,4 +23,5 @@ func TestConfig(t *testing.T) {
 	}
 	fmt.Printf("DefaultConfig = %s\n", jsonbtyes)
 	fmt.Printf("diy params = %s\n", c.Get("settings", "diy", "servicePath").String(""))
+	fmt.Printf("diy params = %s \n", c.Get("settings", "diy", "moduleName").StringSlice([]string{}))
 }

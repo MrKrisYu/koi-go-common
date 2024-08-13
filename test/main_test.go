@@ -3,6 +3,7 @@ package test
 import (
 	"fmt"
 	"github.com/MrKrisYu/koi-go-common/config/source/file"
+	"github.com/MrKrisYu/koi-go-common/sdk"
 	"github.com/MrKrisYu/koi-go-common/sdk/api"
 	"github.com/MrKrisYu/koi-go-common/sdk/api/header"
 	"github.com/MrKrisYu/koi-go-common/sdk/api/response"
@@ -71,6 +72,16 @@ func (c *TestController) MixParams(ctx *gin.Context) {
 	//var req MixReq
 	//var req JsonRequest
 	_ = c.MakeContext(ctx)
-	c.Error(ctx, response.OK, i18n.NewMyErrorWithMessageID(i18n.MessageID{ID: "response.OK", DefaultMessage: "OKOK"}))
+	myError := i18n.NewMyErrorWithMessageID(i18n.MessageID{ID: "response.OK", DefaultMessage: "OKOK"})
+	myError.AddMessage(i18n.MessageID{ID: "response.NoOK", DefaultMessage: "OKOK1"})
+	myError.AddMessage(i18n.MessageID{ID: "response.NOK", DefaultMessage: "OKOK2"})
+	c.Error(ctx, response.OK, myError)
 	return
+}
+
+func TestConfig(t *testing.T) {
+	config.Setup(file.NewSource(file.WithPath("./application-test.yaml")))
+	config := sdk.RuntimeContext.GetDefaultConfig()
+	fmt.Printf("moduleName = %v \n", config.Get("settings", "moduleName").StringSlice([]string{}))
+
 }

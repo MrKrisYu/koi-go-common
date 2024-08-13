@@ -17,3 +17,7 @@ settings:
     compress: true
   diy:
     servicePath: it is a test params
+    moduleName:
+      - "./LincOS"
+      - "./traefik"
+      - "./LincNetwork"

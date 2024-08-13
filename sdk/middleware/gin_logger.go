@@ -92,7 +92,7 @@ func GinLogger(trafficKey string) gin.HandlerFunc {
 			"HTTP METHOD: %s\n" +
 			"IP: %s\n" +
 			"HTTP STATUS: %d\n" +
-			"Error Message: %s\n" +
+			"Error Messages: %s\n" +
 			"响应数据: %s\n" +
 			"耗时: %s\n" +
 			"---------------------------请求结束-----------------------------\n"

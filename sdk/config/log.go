@@ -7,6 +7,7 @@ import (
 )
 
 type Log struct {
+	Enable     bool   `json:"enable"`     // 是否启用，默认不启用
 	Driver     string `json:"driver"`     // 日志实现： default, zap
 	Level      string `json:"level"`      // 日志过滤等级
 	FilePath   string `json:"filePath"`   // 存放日志的路径
@@ -25,6 +26,7 @@ const (
 
 func getDefaultLogConfig() *Log {
 	return &Log{
+		Enable:     false,
 		Driver:     "default",
 		Level:      "info",
 		FilePath:   "./logs/application.log",
@@ -59,6 +61,10 @@ func (l *Log) Setup() {
 	if l.MaxSize <= 0 {
 		l.MaxSize = defaultConfig.MaxSize
 	}
+	if !l.Enable {
+		// 或是未配置启用，则默认不启用
+		return
+	}
 
 	switch l.Driver {
 	case DefaultLogDriver:
@@ -66,8 +72,12 @@ func (l *Log) Setup() {
 		sdk.RuntimeContext.SetLogger(logger.NewHelper(defaultLogger))
 		return
 	case ZapLogDriver:
+		level, err := logger.GetLevel(l.Level)
+		if err != nil {
+			level = logger.InfoLevel
+		}
 		newLogger, err := zap.NewLogger(
-			logger.WithLevel(logger.InfoLevel),
+			logger.WithLevel(level),
 			zap.WithOutput(
 				zap.GetConsoleWriterSync(),
 				zap.GetFileWriterSync(l.FilePath, l.MaxSize, l.MaxBackups, l.MaxAge, l.Compress)),

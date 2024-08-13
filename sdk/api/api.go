@@ -17,6 +17,7 @@ import (
 	"net/http"
 	"reflect"
 	"runtime"
+	"strings"
 )
 
 var (
@@ -133,7 +134,7 @@ func (e *Api) OK(ctx *gin.Context, data any) {
 
 func (e *Api) Error(ctx *gin.Context, businessStatus response.Status, err error) {
 	var msg string
-	var myError i18n.MyError
+	var myError *i18n.MyError
 	if !errors.As(err, &myError) { // 处理未知错误
 		// 打印未知错误
 		requestLogger := GetRequestLogger(ctx)
@@ -148,7 +149,12 @@ func (e *Api) Error(ctx *gin.Context, businessStatus response.Status, err error)
 		return
 	}
 	// 若是内部错误类型，则获取翻译后的错误信息即可
-	msg = Translate(ctx, myError.Message)
+	msgBuilder := strings.Builder{}
+	for _, message := range myError.Messages {
+		msgBuilder.WriteString(Translate(ctx, message))
+		msgBuilder.WriteString("; ")
+	}
+	msg = msgBuilder.String()
 	ctx.JSON(http.StatusOK, response.Response[struct{}]{
 		Code:    businessStatus.Code,
 		Message: msg,

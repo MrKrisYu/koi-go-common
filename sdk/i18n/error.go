@@ -1,37 +1,42 @@
 package i18n
 
 type MyError struct {
-	Err     error
-	Message Message `json:"message"`
+	Err      error
+	Messages []Message `json:"messages"`
 }
 
-func (e MyError) Error() string {
+func (e *MyError) Error() string {
 	if e.Err != nil {
 		return e.Err.Error()
 	}
 	return "<nil>"
 }
 
-func NewMyError(err error) MyError {
-	myError := MyError{
-		Err: err,
+func (e *MyError) AddMessage(mi MessageID, arg ...any) {
+	if e.Messages == nil {
+		e.Messages = []Message{}
 	}
-	if err != nil {
-		myError.Message = Message{DefaultMessage: err.Error()}
-	}
-	return myError
+	newMsg := NewMessage(mi, arg...)
+	e.Messages = append(e.Messages, newMsg)
 }
 
-func NewMyErrorWithMessageID(mi MessageID, arg ...any) MyError {
+func NewMyError(err error) *MyError {
 	myError := MyError{
-		Err: nil,
-		Message: Message{
-			ID:             mi.ID,
-			DefaultMessage: mi.DefaultMessage,
-		},
+		Err:      err,
+		Messages: []Message{},
 	}
-	if len(arg) > 0 {
-		myError.Message.Args = arg[0]
+	if err != nil {
+		myError.Messages = append(myError.Messages, Message{DefaultMessage: err.Error()})
 	}
-	return myError
+	return &myError
+}
+
+func NewMyErrorWithMessageID(mi MessageID, arg ...any) *MyError {
+	myError := MyError{
+		Err:      nil,
+		Messages: []Message{},
+	}
+	newMsg := NewMessage(mi, arg...)
+	myError.Messages = append(myError.Messages, newMsg)
+	return &myError
 }

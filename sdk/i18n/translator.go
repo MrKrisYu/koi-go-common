@@ -30,6 +30,17 @@ type Message struct {
 	Args           any    `json:"args"`           // 消息参数
 }
 
+func NewMessage(mi MessageID, args ...any) Message {
+	message := Message{
+		ID:             mi.ID,
+		DefaultMessage: mi.DefaultMessage,
+	}
+	if len(args) > 0 {
+		message.Args = args[0]
+	}
+	return message
+}
+
 type MessageID struct {
 	ID             string `json:"ID"`
 	DefaultMessage string `json:"defaultMessage"`
