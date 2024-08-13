@@ -90,12 +90,12 @@ func (s *Settings) runCallback() {
 
 func (s *Settings) OnChange() {
 	s.init()
-	log.Println("config change and reload")
+	//log.Println("config change and reload")
 }
 
 func (s *Settings) Init() {
 	s.init()
-	log.Println("config init")
+	//log.Println("config init")
 }
 
 func (s *Settings) init() {
