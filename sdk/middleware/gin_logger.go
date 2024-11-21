@@ -94,6 +94,7 @@ func GinLogger(trafficKey string) gin.HandlerFunc {
 			"HTTP STATUS: %d\n" +
 			"Error Messages: %s\n" +
 			"响应数据: %s\n" +
+			"响应大小: %d\n" +
 			"耗时: %s\n" +
 			"---------------------------请求结束-----------------------------\n"
 		logStr := fmt.Sprintf(logTemplate,
@@ -106,6 +107,7 @@ func GinLogger(trafficKey string) gin.HandlerFunc {
 			responseStatus,
 			errorMessage,
 			responseData,
+			recorder.Body.Len(),
 			cost.String(),
 		)
 		requestLogger.Info(logStr)
