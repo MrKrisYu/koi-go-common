@@ -37,12 +37,12 @@ func initialI18nBundle(bundle *i18n.Bundle, matcher language.Matcher) (map[langu
 		// 检查是否为允许的语言
 		_, i, c := matcher.Match(language.Make(langStr))
 		if c == language.No {
-			fmt.Printf("[initialI18nBundle] load message file failed, langStr = %s does not match any of the allowed tags(%+v) \n\n", langStr, AllowedLanguage)
+			//fmt.Printf("[initialI18nBundle] load message file failed, langStr = %s does not match any of the allowed tags(%+v) \n\n", langStr, AllowedLanguage)
 			continue
 		}
 		bindTag := AllowedLanguage[i]
 		if _, ok := localizers[bindTag]; ok {
-			fmt.Printf("[initialI18nBundle] localizer of tag=%s already exists, langStr = %s\n\n", bindTag.String(), langStr)
+			//fmt.Printf("[initialI18nBundle] localizer of tag=%s already exists, langStr = %s\n\n", bindTag.String(), langStr)
 			continue
 		}
 		// 加载语言资源
@@ -115,7 +115,7 @@ func (d *DefaultTranslator) GetLocalizer(lang language.Tag) *i18n.Localizer {
 func (d *DefaultTranslator) Tr(lang language.Tag, message i18n2.Message) string {
 	localizer := d.GetLocalizer(lang)
 	if localizer == nil {
-		fmt.Printf("[Tr] %s does not match any locaizer, using default lang:%s \n", lang.String(), DefaultLanguage.String())
+		//fmt.Printf("[Tr] %s does not match any locaizer, using default lang:%s \n", lang.String(), DefaultLanguage.String())
 		localizer = d.GetLocalizer(DefaultLanguage)
 	}
 	msg, err := localizer.Localize(&i18n.LocalizeConfig{
@@ -130,7 +130,7 @@ func (d *DefaultTranslator) Tr(lang language.Tag, message i18n2.Message) string 
 func (d *DefaultTranslator) TrWithData(lang language.Tag, message i18n2.Message) string {
 	localizer := d.GetLocalizer(lang)
 	if localizer == nil {
-		fmt.Printf("%s does not match any locaizer, using default lang:%s \n", lang.String(), DefaultLanguage.String())
+		//fmt.Printf("%s does not match any locaizer, using default lang:%s \n", lang.String(), DefaultLanguage.String())
 		localizer = d.GetLocalizer(DefaultLanguage)
 	}
 	msg, err := localizer.Localize(&i18n.LocalizeConfig{

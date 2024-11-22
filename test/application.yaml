@@ -9,6 +9,7 @@ settings:
     demoMsg: ""
 
   log:
+    enable: true
     # 日志框架
     driver: "zap"
     # 日志等级, 可用等级参考 logger/level包下的 Level.String()

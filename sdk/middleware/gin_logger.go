@@ -16,6 +16,11 @@ import (
 func GinLogger(trafficKey string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		requestLogger := api.GetRequestLogger(c)
+		requestId := c.Request.Header.Get(trafficKey)
+		// 获取 handler 名称
+		handlerName := runtime.FuncForPC(reflect.ValueOf(c.Handler()).Pointer()).Name()
+		// 请求来源的IP地址
+		clientIP := c.ClientIP()
 		// 获取请求地址和方法
 		requestPath := c.Request.URL.String()
 		requestMethod := c.Request.Method
@@ -50,6 +55,24 @@ func GinLogger(trafficKey string) gin.HandlerFunc {
 
 		// 处理请求前记录时间
 		start := time.Now()
+
+		logTemplate := "X-Request-Id:%s" +
+			"\n---------------------------请求开始-----------------------------\n" +
+			"CLASS METHOD: %s\n" +
+			"请求地址: %s\n" +
+			"请求参数: %+v\n" +
+			"HTTP METHOD: %s\n" +
+			"IP: %s\n"
+		logStr := fmt.Sprintf(logTemplate,
+			requestId,
+			handlerName,
+			requestPath,
+			reqParams,
+			requestMethod,
+			clientIP,
+		)
+		requestLogger.Info(logStr)
+
 		// 处理请求
 		c.Next()
 		// 处理请求后记录时间
@@ -78,38 +101,24 @@ func GinLogger(trafficKey string) gin.HandlerFunc {
 			responseData = fmt.Sprintf("[UNSUPPORTED CONTENT TYPE: %s]", contentTypeWithoutParams)
 		}
 
-		clientIP := c.ClientIP()
-		// 获取 handler 名称
-		handlerName := runtime.FuncForPC(reflect.ValueOf(c.Handler()).Pointer()).Name()
+		// 响应错误信息
 		errorMessage := c.Errors.ByType(gin.ErrorTypePrivate).String()
-		requestId := c.Request.Header.Get(trafficKey)
 
-		logTemplate := "\n---------------------------请求开始-----------------------------\n" +
-			"X-Request-Id: %s\n" +
-			"CLASS METHOD: %s\n" +
-			"请求地址: %s\n" +
-			"请求参数: %+v\n" +
-			"HTTP METHOD: %s\n" +
-			"IP: %s\n" +
+		responseTemplate := "X-Request-Id:%s\n" +
 			"HTTP STATUS: %d\n" +
 			"Error Messages: %s\n" +
 			"响应数据: %s\n" +
 			"响应大小: %d\n" +
 			"耗时: %s\n" +
 			"---------------------------请求结束-----------------------------\n"
-		logStr := fmt.Sprintf(logTemplate,
+		respLogStr := fmt.Sprintf(responseTemplate,
 			requestId,
-			handlerName,
-			requestPath,
-			reqParams,
-			requestMethod,
-			clientIP,
 			responseStatus,
 			errorMessage,
 			responseData,
 			recorder.Body.Len(),
 			cost.String(),
 		)
-		requestLogger.Info(logStr)
+		requestLogger.Info(respLogStr)
 	}
 }

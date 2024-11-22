@@ -27,7 +27,9 @@ func TestGinLogger(t *testing.T) {
 	translator := example.NewDefaultTranslator(example.DefaultLanguage, example.AllowedLanguage)
 
 	engine := gin.Default()
-	engine.Use(middleware.GinLogger("X-Request-Id")).Use(example.AcceptLanguage())
+	engine.Use(middleware.RequestId("X-Request-Id")).
+		Use(middleware.GinLogger("X-Request-Id")).
+		Use(example.AcceptLanguage())
 
 	engine.POST("/testJson", func(c *gin.Context) {
 		var req JsonRequest

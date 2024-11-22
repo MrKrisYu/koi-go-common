@@ -1,7 +1,6 @@
 package example
 
 import (
-	"fmt"
 	"github.com/MrKrisYu/koi-go-common/sdk/api/header"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/text/language"
@@ -18,7 +17,7 @@ func GetLang(ctx *gin.Context) language.Tag {
 		acceptLanguage, _ = ctx.GetQuery(LanguageReqQueryKey)
 	}
 	if len(acceptLanguage) == 0 {
-		fmt.Printf("[Middleware-AcceptLanguage] got lang=%s, match=%s \n\n", acceptLanguage, matchedTag.String())
+		//fmt.Printf("[Middleware-AcceptLanguage] got lang=%s, match=%s \n\n", acceptLanguage, matchedTag.String())
 		return matchedTag
 	}
 	matcher := language.NewMatcher(AllowedLanguage)
@@ -26,7 +25,7 @@ func GetLang(ctx *gin.Context) language.Tag {
 	if confidence != language.No {
 		matchedTag = AllowedLanguage[index]
 	}
-	fmt.Printf("[Middleware-AcceptLanguage] got lang=%s, match=%s \n\n", acceptLanguage, matchedTag.String())
+	//fmt.Printf("[Middleware-AcceptLanguage] got lang=%s, match=%s \n\n", acceptLanguage, matchedTag.String())
 	return matchedTag
 }
 
