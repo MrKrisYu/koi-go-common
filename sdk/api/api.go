@@ -97,39 +97,122 @@ func (e *Api) OK(ctx *gin.Context, data any) {
 		return
 	}
 	var ret any
-	value := reflect.ValueOf(data)
-	switch value.Kind() {
-	case reflect.Slice:
-		// 检查切片是否为空
-		if value.IsNil() {
-			// 创建一个非nil的空切片
-			data = reflect.MakeSlice(value.Type(), 0, 0).Interface()
-		}
-		// 切片，使用ListDataWrapper封装
-		ret = response.Response[ListDataWrapper[any]]{
-			Code:    response.OK.Code,
-			Message: message,
-			Data:    ListDataWrapper[any]{Items: data},
-		}
-		break
-	case reflect.Struct:
-		// 结构体，直接返回
-		ret = response.Response[any]{
-			Code:    response.OK.Code,
-			Message: message,
-			Data:    data,
-		}
-		break
-	default:
-		// 非切片且非结构体，使用ValueWrapper封装
-		ret = response.Response[ValueWrapper[any]]{
-			Code:    response.OK.Code,
-			Message: message,
-			Data:    ValueWrapper[any]{Value: data},
-		}
+	data = ensureNonNil(data)
+	ret = response.Response[any]{
+		Code:    response.OK.Code,
+		Message: message,
+		Data:    data,
 	}
+	//value := reflect.ValueOf(data)
+	//switch value.Kind() {
+	//case reflect.Slice:
+	//	// 检查切片是否为空
+	//	if value.IsNil() {
+	//		// 创建一个非nil的空切片
+	//		data = reflect.MakeSlice(value.Type(), 0, 0).Interface()
+	//	}
+	//	// 切片，使用ListDataWrapper封装
+	//	ret = response.Response[ListDataWrapper[any]]{
+	//		Code:    response.OK.Code,
+	//		Message: message,
+	//		Data:    ListDataWrapper[any]{Items: data},
+	//	}
+	//	break
+	//case reflect.Struct:
+	//	// 结构体，直接返回
+	//	ret = response.Response[any]{
+	//		Code:    response.OK.Code,
+	//		Message: message,
+	//		Data:    data,
+	//	}
+	//	break
+	//default:
+	//	// 非切片且非结构体，使用ValueWrapper封装
+	//	ret = response.Response[ValueWrapper[any]]{
+	//		Code:    response.OK.Code,
+	//		Message: message,
+	//		Data:    ValueWrapper[any]{Value: data},
+	//	}
+	//}
 	ctx.JSON(http.StatusOK, ret)
 
+}
+
+func ensureNonNil(data interface{}) interface{} {
+	val := reflect.ValueOf(data)
+
+	switch val.Kind() {
+	case reflect.Ptr:
+		if !val.IsNil() {
+			ensureStructFieldsNonNil(val.Elem())
+		}
+		return data
+	case reflect.Struct:
+		// 如果是值类型的结构体，创建一个指针进行处理
+		ptr := reflect.New(val.Type())
+		ptr.Elem().Set(val)
+		ensureStructFieldsNonNil(ptr.Elem())
+		return ptr.Interface()
+	case reflect.Slice:
+		if val.IsNil() {
+			return reflect.MakeSlice(val.Type(), 0, 0).Interface()
+		}
+		for i := 0; i < val.Len(); i++ {
+			elem := val.Index(i)
+			if elem.Kind() == reflect.Ptr && !elem.IsNil() {
+				ensureStructFieldsNonNil(elem.Elem())
+			} else if elem.Kind() == reflect.Struct {
+				ensureStructFieldsNonNil(elem)
+			}
+		}
+	default:
+	}
+
+	return data
+}
+
+func ensureStructFieldsNonNil(val reflect.Value) {
+	if val.Kind() == reflect.Ptr {
+		val = val.Elem()
+	}
+
+	for i := 0; i < val.NumField(); i++ {
+		field := val.Field(i)
+		fieldType := val.Type().Field(i)
+
+		// 跳过非导出字段
+		if fieldType.PkgPath != "" {
+			continue
+		}
+
+		// 确保字段是可设置的
+		if !field.CanSet() {
+			continue
+		}
+
+		// 如果字段是指针，递归处理其指向的值
+		if field.Kind() == reflect.Ptr && !field.IsNil() {
+			ensureStructFieldsNonNil(field.Elem())
+		}
+
+		// 如果字段是切片，确保其不为 nil
+		if field.Kind() == reflect.Slice {
+			if field.IsNil() {
+				field.Set(reflect.MakeSlice(field.Type(), 0, 0))
+			} else {
+				for j := 0; j < field.Len(); j++ {
+					elem := field.Index(j)
+					if elem.Kind() == reflect.Ptr && !elem.IsNil() {
+						ensureStructFieldsNonNil(elem.Elem())
+					} else if elem.Kind() == reflect.Struct {
+						ensureStructFieldsNonNil(elem)
+					}
+				}
+			}
+		} else if field.Kind() == reflect.Struct {
+			ensureStructFieldsNonNil(field)
+		}
+	}
 }
 
 func (e *Api) Error(ctx *gin.Context, businessStatus response.Status, err error) {

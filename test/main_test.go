@@ -5,14 +5,10 @@ import (
 	"github.com/MrKrisYu/koi-go-common/config/source/file"
 	"github.com/MrKrisYu/koi-go-common/sdk"
 	"github.com/MrKrisYu/koi-go-common/sdk/api"
-	"github.com/MrKrisYu/koi-go-common/sdk/api/header"
-	"github.com/MrKrisYu/koi-go-common/sdk/api/response"
 	"github.com/MrKrisYu/koi-go-common/sdk/config"
-	"github.com/MrKrisYu/koi-go-common/sdk/i18n"
 	"github.com/MrKrisYu/koi-go-common/sdk/i18n/example"
 	"github.com/MrKrisYu/koi-go-common/sdk/middleware"
 	"github.com/gin-gonic/gin"
-	"golang.org/x/text/language"
 	"net/http"
 	"testing"
 )
@@ -24,7 +20,7 @@ type JsonRequest struct {
 func TestGinLogger(t *testing.T) {
 	config.Setup(file.NewSource(file.WithPath("./application.yaml")))
 
-	translator := example.NewDefaultTranslator(example.DefaultLanguage, example.AllowedLanguage)
+	//translator := example.NewDefaultTranslator(example.DefaultLanguage, example.AllowedLanguage)
 
 	engine := gin.Default()
 	engine.Use(middleware.RequestId("X-Request-Id")).
@@ -38,13 +34,27 @@ func TestGinLogger(t *testing.T) {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		lang := language.Und
-		if value, exists := c.Get(header.AcceptLanguageFlag); exists {
-			lang = value.(language.Tag)
+		var testData struct {
+			StrValue     string  `json:"strValue"`
+			IntValue     int     `json:"intValue"`
+			BooleanValue bool    `json:"booleanValue"`
+			FloatValue   float64 `json:"floatValue"`
+			StructValue  struct {
+				StrValue     string `json:"strValue"`
+				IntValue     int    `json:"intValue"`
+				BooleanValue bool   `json:"booleanValue"`
+			}
+			StrArrayValue []string          `json:"strArrayValue"`
+			MapValue      map[string]string `json:"mapValue"`
+			StrPointValue *string           `json:"strPointValue"`
 		}
-		message := translator.TrWithData(lang, i18n.Message{ID: req.Value, DefaultMessage: "DefaultMessage", Args: map[string]interface{}{"Arg": "测试参数"}})
-		req.Value = message
-		c.JSON(http.StatusOK, req)
+		//lang := language.Und
+		//if value, exists := c.Get(header.AcceptLanguageFlag); exists {
+		//	lang = value.(language.Tag)
+		//}
+		//message := translator.TrWithData(lang, i18n.Message{ID: req.Value, DefaultMessage: "DefaultMessage", Args: map[string]interface{}{"Arg": "测试参数"}})
+		//req.Value = message
+		c.JSON(http.StatusOK, testData)
 	})
 
 	controller := TestController{}
@@ -70,14 +80,49 @@ type TestController struct {
 	api.Api
 }
 
+type Menu struct {
+	Name     string
+	Path     string
+	Children []Menu
+}
+
+type TestStruct struct {
+	StrValue     string  `json:"strValue"`
+	IntValue     int     `json:"intValue"`
+	BooleanValue bool    `json:"booleanValue"`
+	FloatValue   float64 `json:"floatValue"`
+	StructValue  struct {
+		StrValue      string            `json:"strValue"`
+		IntValue      int               `json:"intValue"`
+		BooleanValue  bool              `json:"booleanValue"`
+		StrArrayValue []string          `json:"strArrayValue"`
+		MapValue      map[string]string `json:"mapValue"`
+		StrPointValue *string           `json:"strPointValue"`
+	}
+	StrArrayValue    []string          `json:"strArrayValue"`
+	MapValue         map[string]string `json:"mapValue"`
+	StrPointValue    *string           `json:"strPointValue"`
+	EmbedArrayStruct []TestStruct      `json:"embedArrayStruct"`
+}
+
 func (c *TestController) MixParams(ctx *gin.Context) {
 	//var req MixReq
 	//var req JsonRequest
 	_ = c.MakeContext(ctx)
-	myError := i18n.NewMyErrorWithMessageID(i18n.MessageID{ID: "response.OK", DefaultMessage: "OKOK"})
-	myError.AddMessage(i18n.MessageID{ID: "response.NoOK", DefaultMessage: "OKOK1"})
-	myError.AddMessage(i18n.MessageID{ID: "response.NOK", DefaultMessage: "OKOK2"})
-	c.Error(ctx, response.OK, myError)
+	//myError := i18n.NewMyErrorWithMessageID(i18n.MessageID{ID: "response.OK", DefaultMessage: "OKOK"})
+	//myError.AddMessage(i18n.MessageID{ID: "response.NoOK", DefaultMessage: "OKOK1"})
+	//myError.AddMessage(i18n.MessageID{ID: "response.NOK", DefaultMessage: "OKOK2"})
+	//c.Error(ctx, response.OK, myError)
+	//err := i18n.NewMyError(fmt.Errorf("我就想看看你能不能直接返回这个错误"))
+	var testData TestStruct
+
+	//testData := Menu{
+	//	Name:     "",
+	//	Path:     "",
+	//	Children: make([]Menu, 0),
+	//}
+
+	c.OK(ctx, testData)
 	return
 }
 

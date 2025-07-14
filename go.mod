@@ -1,6 +1,6 @@
 module github.com/MrKrisYu/koi-go-common
 
-go 1.22.2
+go 1.24.3
 
 require (
 	github.com/bitly/go-simplejson v0.5.1
