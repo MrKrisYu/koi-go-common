@@ -103,6 +103,37 @@ func (e *Api) OK(ctx *gin.Context, data any) {
 		Message: message,
 		Data:    data,
 	}
+	value := reflect.ValueOf(data)
+	switch value.Kind() {
+	case reflect.Slice:
+		// 检查切片是否为空
+		if value.IsNil() {
+			// 创建一个非nil的空切片
+			data = reflect.MakeSlice(value.Type(), 0, 0).Interface()
+		}
+		// 切片，使用ListDataWrapper封装
+		ret = response.Response[ListDataWrapper[any]]{
+			Code:    response.OK.Code,
+			Message: message,
+			Data:    ListDataWrapper[any]{Items: data},
+		}
+		break
+	case reflect.Struct:
+		// 结构体，直接返回
+		ret = response.Response[any]{
+			Code:    response.OK.Code,
+			Message: message,
+			Data:    data,
+		}
+		break
+	default:
+		// 非切片且非结构体，使用ValueWrapper封装
+		ret = response.Response[ValueWrapper[any]]{
+			Code:    response.OK.Code,
+			Message: message,
+			Data:    ValueWrapper[any]{Value: data},
+		}
+	}
 	ctx.JSON(http.StatusOK, ret)
 
 }
