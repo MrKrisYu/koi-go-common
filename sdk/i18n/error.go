@@ -1,5 +1,10 @@
 package i18n
 
+import (
+	"fmt"
+	"strings"
+)
+
 type MyError struct {
 	Err      error
 	Messages []Message `json:"messages"`
@@ -8,6 +13,16 @@ type MyError struct {
 func (e *MyError) Error() string {
 	if e.Err != nil {
 		return e.Err.Error()
+	}
+	if len(e.Messages) > 0 {
+		var errMsg strings.Builder
+		for index, msg := range e.Messages {
+			if index > 0 {
+				errMsg.WriteString(";")
+			}
+			errMsg.WriteString(fmt.Sprintf("ErrMsg=%s,Args=%v", msg.DefaultMessage, msg.Args))
+		}
+		return strings.TrimSpace(errMsg.String())
 	}
 	return "<nil>"
 }
