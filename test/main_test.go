@@ -10,6 +10,7 @@ import (
 	"github.com/MrKrisYu/koi-go-common/sdk/middleware"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	_ "net/http/pprof"
 	"testing"
 )
 
@@ -58,7 +59,12 @@ func TestGinLogger(t *testing.T) {
 	})
 
 	controller := TestController{}
+	engine.GET("/debug/pprof/*any", gin.WrapH(http.DefaultServeMux))
 	engine.GET("/testMixParams", controller.MixParams)
+
+	engine.GET("/testFile", func(context *gin.Context) {
+		context.File("F:/WXWork/1688852056207622/Cache/File/2025-08/[Recommend] lincos-live_v0.0.9_complete_2507182025.iso.downloading")
+	})
 
 	err := engine.Run("localhost:8080")
 	if err != nil {

@@ -116,7 +116,7 @@ func GinLogger(trafficKey string) gin.HandlerFunc {
 			responseStatus,
 			errorMessage,
 			responseData,
-			recorder.Body.Len(),
+			recorder.cnt,
 			cost.String(),
 		)
 		requestLogger.Info(respLogStr)
