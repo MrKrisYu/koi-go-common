@@ -56,7 +56,7 @@ func GinLogger(trafficKey string) gin.HandlerFunc {
 		// 处理请求前记录时间
 		start := time.Now()
 
-		logTemplate := "\n-----请求开始(X-Request-Id:%s)-----\n" +
+		logTemplate := "\n------------------------------请求开始(X-Request-Id:%s)------------------------------\n" +
 			"CLASS METHOD: %s\n" +
 			"请求地址: %s\n" +
 			"请求参数: %+v\n" +
@@ -108,7 +108,7 @@ func GinLogger(trafficKey string) gin.HandlerFunc {
 			"响应数据: %s\n" +
 			"响应大小: %d\n" +
 			"耗时: %s\n" +
-			"-----请求结束(X-Request-Id:%s)-----\n"
+			"------------------------------请求结束(X-Request-Id:%s)------------------------------\n"
 		respLogStr := fmt.Sprintf(responseTemplate,
 			responseStatus,
 			errorMessage,
